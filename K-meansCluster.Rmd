@@ -1,0 +1,191 @@
+---
+title: "Research Clustering Techniques"
+author: "Hidaya Patel"
+date: "3/2/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# K-Means Clustering for the data
+
+```{r}
+#Using package factoextra
+library(factoextra)
+
+# Importing Dataset
+library(readr)
+Covid_19_cities <- read_csv("C:/Users/Hidaya/Desktop/Winter 2022/research/Covid-19-cities.csv")
+
+cities <- Covid_19_cities
+
+# Storing columns 2,3,4 in data
+data <- cities[2:4]
+
+# Scaling the data 
+data <- scale(data)
+  
+# Finding the euclidean distance 
+euclidean <- get_dist(data)
+summary(euclidean)
+
+# Plotting the distance matrix
+fviz_dist(euclidean)
+```
+
+
+```{r}
+set.seed(123)
+
+# Finding the optimal number of clusters
+fviz_nbclust(data, kmeans, method = "wss")
+
+```
+```{r}
+set.seed(123)
+fviz_nbclust(data, kmeans, method = "silhouette")
+```
+
+
+
+```{r}
+set.seed(123)
+
+# Applying K-means clustering 
+endkmeans <- kmeans(data, 3, nstart = 100)
+
+print(endkmeans)
+
+```
+
+```{r}
+# Plotting the clustered cities
+rownames(data) <- paste(cities$Cities, 1:dim(cities)[1], sep = "_")
+
+fviz_cluster(endkmeans, data = data, labelsize = 10)
+
+```
+
+```{r}
+
+# Just a visual of which city belongs to which cluster
+table(endkmeans$cluster,cities$Cities)
+
+```
+
+# Heirarchical clustering for the data
+
+
+```{r}
+# Extracting Data
+Covid_Cities <-Covid_19_cities$Cities
+
+# Loading required data and scaling it 
+data <- cities[2:4]
+data <- scale(data)
+
+# Distance Matrix Computation
+data.dist <- dist(data)
+
+# Hierarchical cluster analysis on a set of dissimilarities and methods for analyzing it.
+hc.cities <- hclust(data.dist, method = "complete")
+hc.cities
+
+# Plotting the enhanced dendogram with rectangles around the clusters
+plot(hc.cities)
+rect.hclust(hc.cities, k = 3, border = 2:5)
+
+```
+
+
+```{r}
+COvid.clusters <- cutree(hc.cities, k = 3)
+
+rownames(data) <- paste(cities$Cities, 1:dim(cities)[1], sep = "_")
+
+fviz_cluster(list(data = data, cluster = COvid.clusters))
+```
+
+```{r}
+
+table(COvid.clusters, cities$Cities)
+
+```
+
+# K-means without outlier Toronto (outlier), cluster numbers 3 and 4 for each technique 
+
+## 3 clusters 
+
+```{r}
+library(factoextra)
+library(readr)
+modified <- read_csv("C:/Users/Hidaya/Desktop/Winter 2022/research/covid-cities-2.csv")
+
+cities_new <- modified
+
+# Storing columns 2,3,4 in data
+data1 <- cities_new[2:4]
+
+# Scaling the data 
+data1 <- scale(data1)
+  
+# Finding the euclidean distance 
+euclidean1 <- get_dist(data1)
+
+# Applying K-means clustering 
+endkmeans1 <- kmeans(data1, 3, nstart = 100)
+
+rownames(data1) <- paste(cities_new$Cities, 1:dim(cities_new)[1], sep = "_")
+
+fviz_cluster(endkmeans1, data = data1, labelsize = 10)
+
+```
+
+
+## 4 clusters 
+
+```{r}
+# Applying K-means clustering 
+endkmeans1 <- kmeans(data1, 4, nstart = 100)
+
+rownames(data1) <- paste(cities_new$Cities, 1:dim(cities_new)[1], sep = "_")
+
+fviz_cluster(endkmeans1, data = data1, labelsize = 10)
+
+```
+
+# Heirarchical clustering without Toronto (outlier)
+
+## 3 clusters 
+
+```{r}
+# Distance Matrix Computation
+data1.dist <- dist(data1)
+
+# Hierarchical cluster analysis on a set of dissimilarities and methods for analyzing it.
+hc.cities1 <- hclust(data1.dist, method = "complete")
+
+COvid.clusters1 <- cutree(hc.cities1, k = 3)
+
+rownames(data1) <- paste(cities_new$Cities, 1:dim(cities_new)[1], sep = "_")
+
+fviz_cluster(list(data = data1, cluster = COvid.clusters1))
+```
+
+## 4 clusters 
+
+```{r}
+# Hierarchical cluster analysis on a set of dissimilarities and methods for analyzing it.
+hc.cities1 <- hclust(data1.dist, method = "complete")
+
+COvid.clusters1 <- cutree(hc.cities1, k = 4)
+
+rownames(data1) <- paste(cities_new$Cities, 1:dim(cities_new)[1], sep = "_")
+
+fviz_cluster(list(data = data1, cluster = COvid.clusters1))
+```
+
